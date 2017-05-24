@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/blooddy_crypto.swc!/" />
+      <root url="jar://$PROJECT_DIR$/libs/grabcut.swc!/" />
+      <root url="jar://$PROJECT_DIR$/libs/as3corelib.swc!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
