@@ -340,7 +340,7 @@ public class Server implements IServer {
 	public function setSelectedLang(lang:String):void {
 		// Record the language setting.
 		var sharedObj:SharedObject = SharedObject.getLocal('Scratch');
-		if (lang == '') lang = 'en';
+		if (lang == '') lang = 'zh-cn';
 		sharedObj.data.lang = lang;
 		sharedObj.flush();
 	}

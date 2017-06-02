@@ -136,6 +136,7 @@ public class Scratch extends Sprite {
 	public var logger:Log = new Log(16);
 
 	public function Scratch() {
+		trace("hahahah");
 		SVGTool.setStage(stage);
 		loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, uncaughtErrorHandler);
 		app = this;
@@ -210,6 +211,19 @@ public class Scratch extends Sprite {
 		stage.addEventListener(Event.RESIZE, onResize);
 
 		setEditMode(startInEditMode());
+		//only player mode
+		 if (loaderInfo.parameters["showOnly"])
+	            	{
+	          	      setEditMode(loaderInfo.parameters["showOnly"] != "true");
+	         	 }
+	           	 if (editMode)
+	           	 {
+	           	     runtime.installNewProject();
+	          	  }
+	          	  else
+	          	  {
+	          	      runtime.installEmptyProject();
+	          	  }
 
 		// install project before calling fixLayout()
 		if (editMode) runtime.installNewProject();
