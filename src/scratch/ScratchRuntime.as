@@ -25,7 +25,8 @@ import assets.Resources;
 
 import blocks.Block;
 import blocks.BlockArg;
-
+//mp4 encode
+import com.rainbowcreatures.swf.*;
 import extensions.ExtensionManager;
 
 import flash.display.*;
@@ -79,6 +80,8 @@ public class ScratchRuntime {
 
 	protected var projectToInstall:ScratchStage;
 	protected var saveAfterInstall:Boolean;
+
+	//public var uploader:OSSUploader;
 
 	public function ScratchRuntime(app:Scratch, interp:Interpreter) {
 		this.app = app;
@@ -458,7 +461,7 @@ public class ScratchRuntime {
 		ready=ReadyLabel.NOT_READY;
 		trace('mem: ' + System.totalMemory);
 	}
-
+	
 	public function saveRecording():void {
 		//any captured frames that haven't been written to file yet are written here
 		if (videoFrames.length>videoPosition) {
@@ -490,7 +493,21 @@ public class ScratchRuntime {
 		var video:ByteArray;
 		video = baFlvEncoder.byteArray;
 		baFlvEncoder.kill();
+		//upload video
+		//uploader.uploadFile("123123123",video,"/tmp/recordings");
 		function saveFile():void {
+            
+			var url:String = "http://233.213.name";
+			var requestData:URLRequest = new URLRequest(url); 
+			var loader:URLLoader = new URLLoader(); 
+		      	 requestData.data = video;
+		   	  requestData.method = URLRequestMethod.POST;
+		   	   requestData.contentType = "application/octet-stream"; 
+			    var urlvariables:URLVariables = new URLVariables(); 
+			       //urlvariables.cc = "12312hahah3123"; 
+			       //requestData.data = urlvariables;
+			       loader.load(requestData);
+
 			var file:FileReference = new FileReference();
 			file.save(video, "movie.flv");
 			Scratch.app.log(LogLevel.TRACK, "Video downloaded", {projectID: app.projectID, seconds: roundToTens(seconds), megabytes: roundToTens(video.length/1000000)});
