@@ -20,12 +20,12 @@
             return;
         }// end function
 
-        public function uploadFile(param1:String, param2:ByteArray, param3:String = "tmp/recordings/", param4:String = ".mp4") : Boolean
+        public function uploadFile(fileName:String, fileData:ByteArray, filePath:String = "tmp/recordings/", fileType:String = ".flv") : Boolean
         {
-            this.fileUUID = param1;
-            var _loc_5:* = param2.length / this.partSize + (param2.length % this.partSize > 0 ? (1) : (0));
-            this.currentFileNameID = param3 + param1 + param4;
-            this.payload = param2;
+            this.fileUUID = fileName;
+            var _loc_5:* = fileData.length / this.partSize + (fileData.length % this.partSize > 0 ? (1) : (0));
+            this.currentFileNameID = filePath + fileName + fileType;
+            this.payload = fileData;
             var _loc_6:* = 0;
             while (_loc_6 < _loc_5)
             {
@@ -61,7 +61,7 @@
                 var onError:* = function () : void
             {
                 me.clean();
-                Scratch.app.notify("recUploadError", me.fileUUID);
+                //Scratch.app.notify("recUploadError", me.fileUUID);
                 return;
             }// end function
             ;
@@ -70,7 +70,7 @@
                 }
                 else
                 {
-                    Scratch.app.notify("recUploadingProgress", {current:i, len:this.tasks.length});
+                   // Scratch.app.notify("recUploadingProgress", {current:i, len:this.tasks.length});
                     len = this.partSize;
                     if (len + this.tasks[i] > this.payload.length)
                     {
@@ -96,11 +96,11 @@
                     me.clean();
                     if (Scratch.app.stagePane.info && Scratch.app.stagePane.info.name)
                     {
-                        Scratch.app.notify("recUploaded", {fileUUID:me.fileUUID, title:Scratch.app.stagePane.info.name});
+                       // Scratch.app.notify("recUploaded", {fileUUID:me.fileUUID, title:Scratch.app.stagePane.info.name});
                     }
                     else
                     {
-                        Scratch.app.notify("recUploaded", {fileUUID:me.fileUUID, title:null});
+                        //Scratch.app.notify("recUploaded", {fileUUID:me.fileUUID, title:null});
                     }
                 }
                 return;
@@ -118,12 +118,12 @@
             return;
         }// end function
 
-        public function uploadOneFile(param1:String, param2:ByteArray, param3:String = "tmp/tmpfiles/", param4:String = ".mp4", param5:String = "aFileUploaded") : void
+        public function uploadOneFile(fileName:String, fileData:ByteArray, filePath:String = "tmp/tmpfiles/", fileType:String = ".flv", param5:String = "aFileUploaded") : void
         {
-            var fileName:* = param1;
-            var content:* = param2;
-            var path:* = param3;
-            var fileType:* = param4;
+            var fileName:* = fileName;
+            var content:* = fileData;
+            var path:* = filePath;
+            var fileType:* = fileType;
             var message:* = param5;
             var fileUUID:* = fileName;
             var request:* = new URLRequest();
