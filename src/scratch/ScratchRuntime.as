@@ -548,7 +548,7 @@ public class ScratchRuntime {
 				file.save(video, "movie.mp4");
 				//Scratch.app.log(LogLevel.TRACK, "Video downloaded", {projectID: app.projectID, seconds: roundToTens(seconds), megabytes: roundToTens(video.length/1000000)});
 				var specEditor:SharingSpecEditor = new SharingSpecEditor();
-				DialogBox.close("分享你的视频",null,specEditor,"Back to Scratch");
+				DialogBox.close("分享你的视频","projectID: "+String(app.projectID),specEditor,"关闭");
 			    releaseVideo(false);
 	        }
 			//		释放视频
@@ -630,10 +630,9 @@ public class ScratchRuntime {
 //			if (log) Scratch.app.log(LogLevel.TRACK, "Video canceled", {projectID: app.projectID, seconds: roundToTens(seconds), megabytes: roundToTens(video.length/1000000)});
 //            video = null;
 //		}
-		
 //		DialogBox.close("Video Finished!","To save, click the button below.",null,"Save and Download",app.stage,saveFile,releaseVideo,null,true);
 		myEncoder.finish();
-		var me:ScratchRuntime;
+//		var me:ScratchRuntime;
 	}
 	
 	private function roundToTens(x:Number):Number {

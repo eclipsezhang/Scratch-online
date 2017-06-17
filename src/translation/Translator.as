@@ -85,8 +85,8 @@ public class Translator {
 	}
 	
 	public static function setLanguage(lang:String):void {
-		if ('import translation file' == lang) { importTranslationFromFile(); return; }
-		if ('set font size' == lang) { fontSizeMenu(); return; }
+		if ('导入语言包' == lang) { importTranslationFromFile(); return; }
+		if ('设置字体大小' == lang) { fontSizeMenu(); return; }
 
 		setLanguageValue(lang);
 		Scratch.app.server.setSelectedLang(lang);

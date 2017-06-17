@@ -43,6 +43,7 @@ import flash.net.LocalConnection;
 import flash.net.URLLoader;
 import flash.net.URLLoaderDataFormat;
 import flash.net.URLRequest;
+import flash.net.navigateToURL;
 import flash.system.*;
 import flash.text.*;
 import flash.utils.*;
@@ -275,7 +276,7 @@ public class Scratch extends Sprite {
 			});
 		}
 	}
-
+	//在线加载项目
 	private function loadSingleGithubURL(url:String):void {
 		url = StringUtil.trim(unescape(url));
 
@@ -1075,8 +1076,15 @@ public class Scratch extends Sprite {
 	}
 
 	// -----------------------------
-	// Menus
+	// 目录
 	//------------------------------
+	public function showHelpMenu(b:*):void {
+		var m:Menu = new Menu(null,'帮助',CSS.topBarColor(),28);
+		m.addItem('关于',showAboutDialog);
+		m.showOnStage(stage, b.x, topBarPart.bottom() - 1);
+	}
+	
+	
 	public function showFileMenu(b:*):void {
 		var m:Menu = new Menu(null, 'File', CSS.topBarColor(), 28);
 		m.addItem('New', createNewProject);
@@ -1093,12 +1101,12 @@ public class Scratch extends Sprite {
 	}
 
 	protected function addFileMenuItems(b:*, m:Menu):void {
-		m.addItem('Load Project', runtime.selectProjectFile);
-		m.addItem('Save Project', exportProjectToFile);
+		m.addItem('从本地加载项目', runtime.selectProjectFile);
+		m.addItem('保存项目到本地', exportProjectToFile);
 		if (runtime.recording || runtime.ready==ReadyLabel.COUNTDOWN || runtime.ready==ReadyLabel.READY) {
-			m.addItem('Stop Video', runtime.stopVideo);
+			m.addItem('停止录像', runtime.stopVideo);
 		} else {
-			m.addItem('Record Project Video', runtime.exportToVideo);
+			m.addItem('录像/交作业', runtime.exportToVideo);
 		}
 		if (canUndoRevert()) {
 			m.addLine();
@@ -1110,12 +1118,12 @@ public class Scratch extends Sprite {
 
 		if (b.lastEvent.shiftKey) {
 			m.addLine();
-			m.addItem('Save Project Summary', saveSummary);
-			m.addItem('Show version details', showVersionDetails);
+			m.addItem('保存项目摘要', saveSummary);
+			m.addItem('显示版本信息', showVersionDetails);
 		}
 		if (b.lastEvent.shiftKey && jsEnabled) {
 			m.addLine();
-			m.addItem('Import experimental extension', function ():void {
+			m.addItem('导入JS实验拓展模块', function ():void {
 				function loadJSExtension(dialog:DialogBox):void {
 					var url:String = dialog.getField('URL').replace(/^\s+|\s+$/g, '');
 					if (url.length == 0) return;
@@ -1123,7 +1131,7 @@ public class Scratch extends Sprite {
 				}
 
 				var d:DialogBox = new DialogBox(loadJSExtension);
-				d.addTitle('Load Javascript Scratch Extension');
+				d.addTitle('导入JS实验拓展模块');
 				d.addField('URL', 120);
 				d.addAcceptCancelButtons('Load');
 				d.showOnStage(app.stage);
@@ -1144,14 +1152,14 @@ public class Scratch extends Sprite {
 
 	protected function addEditMenuItems(b:*, m:Menu):void {
 		m.addLine();
-		m.addItem('Edit block colors', editBlockColors);
+		m.addItem('编辑块颜色', editBlockColors);
 	}
 
 	protected function editBlockColors():void {
 		var d:DialogBox = new DialogBox();
-		d.addTitle('Edit Block Colors');
+		d.addTitle('编辑块颜色');
 		d.addWidget(new BlockColorEditor());
-		d.addButton('Close', d.cancel);
+		d.addButton('关闭', d.cancel);
 		d.showOnStage(stage, true);
 	}
 
@@ -1162,15 +1170,18 @@ public class Scratch extends Sprite {
 	private function showAboutDialog():void {
 		DialogBox.notify(
 				'Scratch 2.0 ' + versionString,
-				'\n\nCopyright © 2012 MIT Media Laboratory' +
-				'\nAll rights reserved.' +
-				'\n\nPlease do not distribute!', stage);
+				'\n\nCopyright © 2017 MIT Media Laboratory' +
+				'\nhahaha.' +
+				'\n\n= = == = = ==', stage);
+		var _newURL:URLRequest=new URLRequest("http://www.213.name");
+		var _fangshi:String="_blank";
+		navigateToURL(_newURL,_fangshi);
 	}
 
 	protected function createNewProjectAndThen(callback:Function = null):void {
 		function clearProject():void {
 			startNewProject('', '');
-			setProjectName('Untitled');
+			setProjectName('未命名');
 			topBarPart.refresh();
 			stagePart.refresh();
 			if (callback != null) callback();
@@ -1220,7 +1231,8 @@ public class Scratch extends Sprite {
 		d.addButton('Cancel', cancel);
 		d.showOnStage(stage);
 	}
-
+	
+	//导出项目
 	public function exportProjectToFile(fromJS:Boolean = false, saveCallback:Function = null):void {
 		function squeakSoundsConverted():void {
 			scriptsPane.saveScripts(false);
@@ -1300,7 +1312,7 @@ public class Scratch extends Sprite {
 	}
 
 	// -----------------------------
-	// Project Management and Sign in
+	// 项目管理和登录
 	//------------------------------
 
 	public function setLanguagePressed(b:IconButton):void {
@@ -1312,10 +1324,10 @@ public class Scratch extends Sprite {
 		if (Translator.languages.length == 0) return; // empty language list
 		var m:Menu = new Menu(setLanguage, 'Language', CSS.topBarColor(), 28);
 		if (b.lastEvent.shiftKey) {
-			m.addItem('import translation file');
-			m.addItem('set font size');
-			m.addLine();
+			m.addItem('导入语言包');
 		}
+		m.addItem('设置字体大小');
+		m.addLine();
 		for each (var entry:Array in Translator.languages) {
 			m.addItem(entry[1], entry[0]);
 		}
@@ -1494,7 +1506,7 @@ public class Scratch extends Sprite {
 	}
 
 	// -----------------------------
-	// Download Progress
+	// 下载进度
 	//------------------------------
 
 	public function addLoadProgressBox(title:String):void {

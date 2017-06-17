@@ -256,7 +256,7 @@ public class Server implements IServer {
 	}
 
 	// -----------------------------
-	// Asset API
+	// 资源API
 	//------------------------------
 	public function getAsset(md5:String, whenDone:Function):URLLoader {
 //		if (BackpackPart.localAssets[md5] && BackpackPart.localAssets[md5].length > 0) {
@@ -266,12 +266,13 @@ public class Server implements IServer {
 		var url:String = URLs.assetCdnPrefix + URLs.internalAPI + 'asset/' + md5 + '/get/';
 		return serverGet(url, whenDone);
 	}
-
+//获取媒体库
 	public function getMediaLibrary(libraryType:String, whenDone:Function):URLLoader {
 		var url:String = getCdnStaticSiteURL() + 'medialibraries/' + libraryType + 'Library.json';
 		return serverGet(url, whenDone);
 	}
 
+//	下载缩略图
 	protected function downloadThumbnail(url:String, w:int, h:int, whenDone:Function):URLLoader {
 		function decodeImage(data:ByteArray):void {
 			if (!data || data.length == 0) return; // no data
@@ -300,7 +301,8 @@ public class Server implements IServer {
 
 		return serverGet(url, decodeImage);
 	}
-
+	
+	//生成缩略图
 	private static function makeThumbnail(bm:BitmapData):BitmapData {
 		const tnWidth:int = 120;
 		const tnHeight:int = 90;
@@ -313,14 +315,15 @@ public class Server implements IServer {
 		result.draw(bm, m);
 		return result;
 	}
-
+	
+//获取缩略图
 	public function getThumbnail(idAndExt:String, w:int, h:int, whenDone:Function):URLLoader {
 		var url:String = getCdnStaticSiteURL() + 'medialibrarythumbnails/' + idAndExt;
 		return downloadThumbnail(url, w, h, whenDone);
 	}
 
 	// -----------------------------
-	// Translation Support
+	// 语言包支持
 	//------------------------------
 
 	public function getLanguageList(whenDone:Function):void {
