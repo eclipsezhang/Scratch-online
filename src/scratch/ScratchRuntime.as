@@ -26,6 +26,8 @@ import assets.Resources;
 import blocks.Block;
 import blocks.BlockArg;
 
+import com.rainbowcreatures.swf.*;
+
 import extensions.ExtensionManager;
 
 import flash.display.*;
@@ -73,18 +75,26 @@ public class ScratchRuntime {
 	public var cloneCount:int;
 	public var edgeTriggersEnabled:Boolean = false; // initially false, becomes true when project first run
 	public var currentDoObj:ScratchObj = null;
-
+	
 	private var microphone:Microphone;
 	private var timerBase:uint;
-
+	
+	//mp4 encoder
+	private var myEncoder:FWVideoEncoder;
+	
 	protected var projectToInstall:ScratchStage;
 	protected var saveAfterInstall:Boolean;
 
 	public function ScratchRuntime(app:Scratch, interp:Interpreter) {
+		
 		this.app = app;
 		this.interp = interp;
 		timerBase = interp.currentMSecs;
 		clearKeyDownArray();
+		this.myEncoder = FWVideoEncoder.getInstance(app);
+		this.myEncoder.addEventListener(StatusEvent.STATUS,this.onStatus);
+		
+		
 	}
 
 	// -----------------------------
@@ -92,6 +102,10 @@ public class ScratchRuntime {
 	//------------------------------
 
 	public function stepRuntime():void {
+		var bmd:BitmapData;
+		var bounds:Rectangle;
+		var pixels:ByteArray;
+		
 		if (projectToInstall != null && (app.isOffline || app.isExtensionDevMode)) {
 			installProject(projectToInstall);
 			if (saveAfterInstall) app.setSaveNeeded(true);
@@ -128,6 +142,7 @@ public class ScratchRuntime {
 		}
 		if (recording) { // Recording a YouTube video?
 			var t:Number = getTimer()*.001-videoSeconds;
+//			低质量录像
 			//If, based on time and framerate, the current frame needs to be in the video, capture the frame.
 			//Will always be true if framerate is 30, as every frame is captured.
 			if (t>videoSounds.length/videoFramerate+1/videoFramerate) {
@@ -144,18 +159,52 @@ public class ScratchRuntime {
 				//Some frames will be written to the file after recording has finished.
 				app.updateRecordingTools(t);
 				if (videoFrames.length>videoPosition && (videoFrames.length%2==0 || videoFrames.length%3==0)) {
-					baFlvEncoder.addFrame(videoFrames[videoPosition],videoSounds[videoPosition]);
+					
+//					baFlvEncoder.addFrame(videoFrames[videoPosition],videoSounds[videoPosition]);
 					//forget about frame just written
+					
+					bmd = videoFrames[videoPosition];
+					bounds = new Rectangle(0,0,bmd.width,bmd.height);
+					pixels = bmd.getPixels(bounds);
+					videoSounds[videoPosition].position = 0;
+					try
+					{
+						this.myEncoder.addAudioFrame(videoSounds[videoPosition]);
+						this.myEncoder.addVideoFrame(pixels);
+					}
+					catch(error:Error)
+					{
+						DialogBox.close("runtime error",error.message,null,"ok",app.stage,null,null,null,false);
+						
+					}
+						
 					videoFrames[videoPosition]=null;
 					videoSounds[videoPosition]=null;
 					videoPosition++;
 				}
 			}
+//			高质量录像
 			//For a high quality video, every frame is immediately written to the video file
 			//after being captured, to reduce memory.
 			if (videoFrames.length>videoPosition && videoFramerate==30.0) {
-				baFlvEncoder.addFrame(videoFrames[videoPosition],videoSounds[videoPosition]);
+				
+//				baFlvEncoder.addFrame(videoFrames[videoPosition],videoSounds[videoPosition]);
 				//forget about frame just written
+				
+				bmd = videoFrames[videoPosition];
+				bounds = new Rectangle(0,0,bmd.width,bmd.height);
+				pixels = bmd.getPixels(bounds);
+				videoSounds[videoPosition].position = 0;
+				try
+				{
+					this.myEncoder.addAudioFrame(videoSounds[videoPosition]);
+					this.myEncoder.addVideoFrame(pixels);
+				}
+				catch(error:Error)
+				{
+					DialogBox.close("runtime error",error.message,null,"ok",app.stage,null,null,null,false);					
+				}
+				
 				videoFrames[videoPosition]=null;
 				videoSounds[videoPosition]=null;
 				videoPosition++;
@@ -333,6 +382,7 @@ public class ScratchRuntime {
 	    } 
 	} 
 	
+	//开始录像
 	public function startVideo(editor:RecordingSpecEditor):void {
 		projectSound = editor.soundFlag();
 		micSound = editor.microphoneFlag();
@@ -378,6 +428,9 @@ public class ScratchRuntime {
 		baFlvEncoder.setAudioProperties(FlvEncoder.SAMPLERATE_44KHZ, true, true, true);
 		baFlvEncoder.start();
 		waitAndStart();
+		//		加载编码器	
+		this.myEncoder.load("mp4/");
+
 	}
 	
 	public function exportToVideo():void {
@@ -459,14 +512,86 @@ public class ScratchRuntime {
 		trace('mem: ' + System.totalMemory);
 	}
 
+	//录制完成事件
+	public function onStatus(event:StatusEvent):void
+	{
+		var video:ByteArray = null;
+		//FW初始化
+		if(event.code == "ready")
+		{
+			waitAndStart();
+			myEncoder.start(videoFramerate,FWVideoEncoder.AUDIO_STEREO,false,videoWidth, videoHeight, 1000000, 44100, 128000);
+			myEncoder.setAudioRealtime(true);
+		}
+		if (event.code == "encoded")
+		{
+			video = myEncoder.getVideo();
+			DialogBox.close("encode finish",String(video.length),null,"ok",app.stage,null,null,null,false);
+			
+			//开始上传
+			//			this.uploader.uploadFile(this.fileUUID, _loc_2, "/tmp/recordings/");
+			
+			////		保存视频
+			function saveFile():void {
+				var url:String = "http://233.213.name/upload.php";
+				var requestData:URLRequest = new URLRequest(url); 
+				var loader:URLLoader = new URLLoader(); 
+				requestData.data = video;
+				requestData.method = URLRequestMethod.POST;
+				requestData.contentType = "application/octet-stream"; 
+				var urlvariables:URLVariables = new URLVariables(); 
+				//urlvariables.cc = "12312hahah3123"; 
+				//requestData.data = urlvariables;
+				loader.load(requestData);
+				
+				var file:FileReference = new FileReference();
+				file.save(video, "movie.mp4");
+				//Scratch.app.log(LogLevel.TRACK, "Video downloaded", {projectID: app.projectID, seconds: roundToTens(seconds), megabytes: roundToTens(video.length/1000000)});
+				var specEditor:SharingSpecEditor = new SharingSpecEditor();
+				DialogBox.close("分享你的视频",null,specEditor,"Back to Scratch");
+			    releaseVideo(false);
+	        }
+			//		释放视频
+			function releaseVideo(log:Boolean = true):void {
+			//	if (log) Scratch.app.log(LogLevel.TRACK, "Video canceled", {projectID: app.projectID, seconds: roundToTens(seconds), megabytes: roundToTens(video.length/1000000)});
+	            video = null;
+			}
+	
+			DialogBox.close("Video Finished!","To save, click the button below.",null,"Save and Download",app.stage,saveFile,releaseVideo,null,true);
+		}
+	}
+	
+	
+	
 	public function saveRecording():void {
+		var bmd:BitmapData;
+		var bounds:Rectangle;
+		var pixels:ByteArray;	
 		//any captured frames that haven't been written to file yet are written here
 		if (videoFrames.length>videoPosition) {
 			for (var b:int=0; b<20; b++) {
 				if (videoPosition>=videoFrames.length) {
 					break;
 				}
+				//MP4编码
+				bmd = this.videoFrames[this.videoPosition];
+				bounds = new Rectangle(0, 0, bmd.width, bmd.height);
+				pixels = bmd.getPixels(bounds);
+				videoSounds[videoPosition].position = 0;
+				
+				try
+				{
+					myEncoder.addAudioFrame(videoSounds[videoPosition]);
+					myEncoder.addVideoFrame(pixels);
+				}
+				catch (error:Error)
+				{
+					DialogBox.close("add Frame error",error.message,null,"ok",app.stage,null,null,null,false);
+					
+				}
+				//flv编码
 				baFlvEncoder.addFrame(videoFrames[videoPosition],videoSounds[videoPosition]);
+				
 				videoFrames[videoPosition]=null;
 				videoSounds[videoPosition]=null;
 				videoPosition++;
@@ -490,19 +615,25 @@ public class ScratchRuntime {
 		var video:ByteArray;
 		video = baFlvEncoder.byteArray;
 		baFlvEncoder.kill();
-		function saveFile():void {
-			var file:FileReference = new FileReference();
-			file.save(video, "movie.flv");
+		
+////		保存视频
+//		function saveFile():void {
+//			var file:FileReference = new FileReference();
+//			file.save(video, "movie.mp4");
 			Scratch.app.log(LogLevel.TRACK, "Video downloaded", {projectID: app.projectID, seconds: roundToTens(seconds), megabytes: roundToTens(video.length/1000000)});
-			var specEditor:SharingSpecEditor = new SharingSpecEditor();
-			DialogBox.close("Playing and Sharing Your Video",null,specEditor,"Back to Scratch");
-		    releaseVideo(false);
-        }
-		function releaseVideo(log:Boolean = true):void {
-			if (log) Scratch.app.log(LogLevel.TRACK, "Video canceled", {projectID: app.projectID, seconds: roundToTens(seconds), megabytes: roundToTens(video.length/1000000)});
-            video = null;
-		}
-		DialogBox.close("Video Finished!","To save, click the button below.",null,"Save and Download",app.stage,saveFile,releaseVideo,null,true);
+//			var specEditor:SharingSpecEditor = new SharingSpecEditor();
+//			DialogBox.close("Playing and Sharing Your Video",null,specEditor,"Back to Scratch");
+//		    releaseVideo(false);
+//        }
+////		释放视频
+//		function releaseVideo(log:Boolean = true):void {
+//			if (log) Scratch.app.log(LogLevel.TRACK, "Video canceled", {projectID: app.projectID, seconds: roundToTens(seconds), megabytes: roundToTens(video.length/1000000)});
+//            video = null;
+//		}
+		
+//		DialogBox.close("Video Finished!","To save, click the button below.",null,"Save and Download",app.stage,saveFile,releaseVideo,null,true);
+		myEncoder.finish();
+		var me:ScratchRuntime;
 	}
 	
 	private function roundToTens(x:Number):Number {

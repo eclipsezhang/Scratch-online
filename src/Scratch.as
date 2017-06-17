@@ -26,6 +26,7 @@ package {
 import blocks.*;
 
 import com.adobe.utils.StringUtil;
+import com.rainbowcreatures.swf.*;
 
 import extensions.ExtensionDevManager;
 import extensions.ExtensionManager;
@@ -73,10 +74,10 @@ import util.*;
 import watchers.ListWatcher;
 
 public class Scratch extends Sprite {
+	private var myEncoder:FWVideoEncoder;
 	// Version
 	public static const versionString:String = 'v456.0.1';
 	public static var app:Scratch; // static reference to the app, used for debugging
-
 	// Display modes
 	public var hostProtocol:String = 'http';
 	public var editMode:Boolean; // true when project editor showing, false when only the player is showing
@@ -136,7 +137,7 @@ public class Scratch extends Sprite {
 	public var logger:Log = new Log(16);
 
 	public function Scratch() {
-		trace("hahahah");
+	
 		SVGTool.setStage(stage);
 		loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, uncaughtErrorHandler);
 		app = this;
@@ -235,8 +236,18 @@ public class Scratch extends Sprite {
 		//Analyze.countMissingAssets();
 
 		handleStartupParameters();
+		
+		this.preloadEncoder();
 	}
-
+	//预加载编码模块
+	private function preloadEncoder() : void
+	{
+		var url:* = new URLRequest("mp4/FW_SWFBridge_ffmpeg.swf?v=24");
+		var loader:* = new Loader();
+		var con:* = new LoaderContext(false, new ApplicationDomain(null), null);
+		loader.load(url, con);
+		return;
+	}
 	protected function handleStartupParameters():void {
 		setupExternalInterface(false);
 		jsEditorReady();

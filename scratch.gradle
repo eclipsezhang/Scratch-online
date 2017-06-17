@@ -47,8 +47,8 @@ dependencies {
     merged files(
             "${commonDir}/libs/as3corelib.swc",
             "${commonDir}/libs/blooddy_crypto.swc",
-            "${commonDir}/libs/grabcut.swc"
-
+            "${commonDir}/libs/grabcut.swc",
+            "${commonDir}/libs/fw_ffmpeg_encode_release_swf.swc"
     )
 }
 
