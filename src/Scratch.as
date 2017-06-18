@@ -237,8 +237,10 @@ public class Scratch extends Sprite {
 		//Analyze.countMissingAssets();
 
 		handleStartupParameters();
-		
 		this.preloadEncoder();
+		
+		Translator.setLanguage("zh-cn");
+		languageChanged = true;
 	}
 	//预加载编码模块
 	private function preloadEncoder() : void
@@ -254,6 +256,9 @@ public class Scratch extends Sprite {
 		jsEditorReady();
 	}
 
+	
+	
+	//注册js调用的入口
 	protected function setupExternalInterface(oldWebsitePlayer:Boolean):void {
 		if (!jsEnabled) return;
 
@@ -261,6 +266,7 @@ public class Scratch extends Sprite {
 		addExternalCallback('ASextensionCallDone', extensionManager.callCompleted);
 		addExternalCallback('ASextensionReporterDone', extensionManager.reporterCompleted);
 		addExternalCallback('AScreateNewProject', createNewProjectScratchX);
+//		addExternalCallback("loadProject", loadSingleGithubURL);
 
 		if (isExtensionDevMode) {
 			addExternalCallback('ASloadGithubURL', loadGithubURL);
@@ -1100,9 +1106,12 @@ public class Scratch extends Sprite {
 		runtime.stopVideo();
 	}
 
+	
 	protected function addFileMenuItems(b:*, m:Menu):void {
 		m.addItem('从本地加载项目', runtime.selectProjectFile);
 		m.addItem('保存项目到本地', exportProjectToFile);
+		m.addItem('重命名项目',changeProjectTitle);
+		
 		if (runtime.recording || runtime.ready==ReadyLabel.COUNTDOWN || runtime.ready==ReadyLabel.READY) {
 			m.addItem('停止录像', runtime.stopVideo);
 		} else {
@@ -1232,7 +1241,7 @@ public class Scratch extends Sprite {
 		d.showOnStage(stage);
 	}
 	
-	//导出项目
+	//导出项目到本地
 	public function exportProjectToFile(fromJS:Boolean = false, saveCallback:Function = null):void {
 		function squeakSoundsConverted():void {
 			scriptsPane.saveScripts(false);
@@ -1258,7 +1267,21 @@ public class Scratch extends Sprite {
 		var projIO:ProjectIO = new ProjectIO(this);
 		projIO.convertSqueakSounds(stagePane, squeakSoundsConverted);
 	}
-
+	//重命名项目
+	public function changeProjectTitle():void{
+		function rename(dialog:DialogBox):void {
+			var name:String = dialog.getField('项目名').replace(/^\s+|\s+$/g, '');
+			stagePane.info.name = name;
+			setProjectName(name);
+		}
+		var d:DialogBox = new DialogBox(rename);
+		d.addTitle('重命名项目');
+		d.addField('项目名', 120);
+		d.addAcceptCancelButtons('确定');
+		d.showOnStage(app.stage);
+		
+	}
+		
 	public static function fixFileName(s:String):String {
 		// Replace illegal characters in the given string with dashes.
 		const illegal:String = '\\/:*?"<>|%';

@@ -432,13 +432,13 @@ public class ScratchRuntime {
 		this.myEncoder.load("mp4/");
 
 	}
-	
+	//录制视频
 	public function exportToVideo():void {
 		var specEditor:RecordingSpecEditor = new RecordingSpecEditor();
 		function startCountdown():void {
 			startVideo(specEditor);
 		}
-		DialogBox.close("Record Project Video",null,specEditor,"Start",app.stage,startCountdown);
+		DialogBox.close("录制视频",null,specEditor,"开始",app.stage,startCountdown);
 	}
 	
 	public function stopVideo():void {
@@ -453,7 +453,7 @@ public class ScratchRuntime {
 	public function finishVideoExport(event:TimerEvent):void {
 		stopRecording();
 		stopAll();
-		app.addLoadProgressBox("Writing video to file...");
+		app.addLoadProgressBox("正在写入文件...");
 		videoAlreadyDone = videoPosition;
 		clearTimeout(timeout);
 		timeout = setTimeout(saveRecording,1);

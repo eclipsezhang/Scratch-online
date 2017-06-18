@@ -52,10 +52,10 @@ public class RecordingSpecEditor extends Sprite {
 		addChild(base = new Shape());
 		setWidthHeight(440, 10);
 
-		addChild(description = makeLabel('Capture and download a video of your project to your computer.\nYou can record up to 60 seconds of video.',14));
-		addChild(notSavedLabel = makeLabel('that the video will not be saved on Scratch.',14));
-		addChild(pleaseNoteLabel = makeLabel('Please note',14,true));
-		addChild(moreLabel = makeLabel('More Options', 14));
+		addChild(description = makeLabel('录屏炫耀一下吧~\n最长可以录制1分钟',14));
+		addChild(notSavedLabel = makeLabel('视频下载的同时还将存到云端，用于交作业或者分享',14));
+		addChild(pleaseNoteLabel = makeLabel('注意：',14,true));
+		addChild(moreLabel = makeLabel('更多选项', 14));
 		moreLabel.addEventListener(MouseEvent.MOUSE_DOWN, toggleButtons);
 		var format:TextFormat = new TextFormat();
 		format.align = TextFormatAlign.CENTER;
@@ -131,11 +131,11 @@ public class RecordingSpecEditor extends Sprite {
 
 	private function addCheckboxesAndLabels():void {
 		checkboxLabels = [
-		makeLabel('Include sound from project', 14),
-		makeLabel('Include sound from microphone', 14),
-		makeLabel('Show mouse pointer',14),
-		makeLabel('Record entire editor (may run slowly)',14),
-		makeLabel('Record at highest quality (may run slowly)',14),
+		makeLabel('项目的声音', 14),
+		makeLabel('麦克风的声音', 14),
+		makeLabel('显示鼠标指针',14),
+		makeLabel('录制整个屏幕(很慢)',14),
+		makeLabel('高质量录制(可能会很慢)',14),
 		];
 		function disable():void {
 			if (editorFlag()) {
@@ -199,10 +199,10 @@ public class RecordingSpecEditor extends Sprite {
 		showButtons(!toggleOn)
 		removeChild(moreLabel)
 		if (toggleOn) {
-			addChild(moreLabel = makeLabel('Fewer Options', 14))
+			addChild(moreLabel = makeLabel('更少选项', 14))
 		}
 		else {
-			addChild(moreLabel = makeLabel('More Options', 14))
+			addChild(moreLabel = makeLabel('更多选项', 14))
 		}
 		moreLabel.addEventListener(MouseEvent.MOUSE_DOWN, toggleButtons);
 		fixLayout()

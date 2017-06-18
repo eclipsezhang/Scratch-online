@@ -133,7 +133,10 @@ public class Server implements IServer {
 		// Re-trying here should help project save failures but we'll need to add more code to re-try loading projects
 		if (event is SecurityErrorEvent) {
 			var urlPathStart:int = url.indexOf('/', 10);
-			var policyFileURL:String = url.substr(0, urlPathStart) + '/crossdomain.xml?cb=' + Math.random();
+			
+			//安全策略，解决无法从本地载入
+//			var policyFileURL:String = url.substr(0, urlPathStart) + '/crossdomain.xml?cb=' + Math.random();
+			var policyFileURL:String ='crossdomain.xml?cb=' + Math.random();
 			Security.loadPolicyFile(policyFileURL);
 			Scratch.app.log(LogLevel.WARNING, 'Reloading policy file', {policy: policyFileURL, initiator: url});
 		}

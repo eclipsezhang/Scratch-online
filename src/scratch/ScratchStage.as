@@ -752,6 +752,7 @@ public class ScratchStage extends ScratchObj {
 		return true;
 	}
 
+//	更新项目信息
 	public function updateInfo():void {
 		info.scriptCount = scriptCount();
 		info.spriteCount = spriteCount();

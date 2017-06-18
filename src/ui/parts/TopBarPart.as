@@ -73,7 +73,7 @@ public class TopBarPart extends UIPart {
 		addTextButtons();
 		addToolButtons();
 		if (Scratch.app.isExtensionDevMode) {
-			addChild(logoButton = new IconButton(app.logoButtonPressed, Resources.createBmp('scratchxlogo')));
+			addChild(logoButton = new IconButton(app.logoButtonPressed, Resources.createBmp('scratchx-logo')));
 			const desiredButtonHeight:Number = 20;
 			logoButton.scaleX = logoButton.scaleY = 1;
 			var scale:Number = desiredButtonHeight / logoButton.height;

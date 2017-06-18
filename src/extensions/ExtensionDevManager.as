@@ -73,8 +73,10 @@ public class ExtensionDevManager extends ExtensionManager {
 
 	protected function localExtensionLoaded():void {
 	}
-
+	
+	//隐藏按钮
 	public function makeLoadExperimentalExtensionButton():Button {
+		return null;
 		function showShiftMenu(evt:MouseEvent):void {
 			loadAndWatchExtensionFile();
 		}
