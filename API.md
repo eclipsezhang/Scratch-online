@@ -23,7 +23,7 @@ token=md5 ('用户id' + '当前时间' +'密钥')
 
 |参数名   |类型      |说明     |
 |---------|:-------:|--------:|
-|user     |string   |用户名    |
+|username     |string   |用户名    |
 |password |string   |密码(md5)|
 |null     |null     |参数为空时根据session获取token|
 
